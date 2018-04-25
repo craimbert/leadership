@@ -18,7 +18,7 @@ type Candidate struct {
 	node   string
 
 	electedCh chan bool
-	lock      sync.Mutex
+	lock      sync.RWMutex
 	lockTTL   time.Duration
 	leader    bool
 	stopCh    chan struct{}
@@ -43,6 +43,8 @@ func NewCandidate(client store.Store, key, node string, ttl time.Duration) *Cand
 
 // IsLeader returns true if the candidate is currently a leader.
 func (c *Candidate) IsLeader() bool {
+	c.lock.RLock()
+	defer c.lock.RUnlock()
 	return c.leader
 }
 
